@@ -13,6 +13,10 @@ function love.load() -- Function to execute before the game loads
     zombies = {} -- Table to store tables of zombie data
 
     bullets = {} -- Table to store tables of bullet data
+
+    gameState = 2
+    maxTime = 2
+    timer = maxTime
 end
 
 function love.update(dt) -- Function to update the game loop
@@ -46,32 +50,32 @@ function love.update(dt) -- Function to update the game loop
     end
 
     for i=#bullets, 1, -1 do -- Loops through each item in the bullets table but does it from the reverse direction
-        local b = bullets[i] -- Creates a local variable to store 
-        if b.x < 0 or b.y < 0 or b.x > love.graphics.getWidth() or b.y > love.graphics.getHeight() then
-            table.remove(bullets, i)
+        local b = bullets[i] -- Creates a local variable to store the current bullet
+        if b.x < 0 or b.y < 0 or b.x > love.graphics.getWidth() or b.y > love.graphics.getHeight() then -- If the bullet is outside of the viewport
+            table.remove(bullets, i) -- Remove the current bullet from the bullets table
         end
     end
 
-    for i,z in ipairs(zombies) do
-        for j,b in ipairs(bullets) do
-            if distanceBetween(z.x, z.y, b.x, b.y) < 20 then
-                z.dead = true
-                b.dead = true
+    for i,z in ipairs(zombies) do -- Loops through all items in zombies table
+        for j,b in ipairs(bullets) do -- Loops through all items in bullets table
+            if distanceBetween(z.x, z.y, b.x, b.y) < 20 then -- If the distance is close enough (aka if they collide)
+                z.dead = true -- Make the zombie die
+                b.dead = true -- Make the bullet die
             end
         end
     end
 
-    for i=#zombies, 1, -1 do
-        local z = zombies[i]
-        if z.dead == true then
-            table.remove(zombies, i)
+    for i=#zombies, 1, -1 do -- Loops through all items in the zombies table in reverse order
+        local z = zombies[i] -- Creates a local variable to store the current zombie
+        if z.dead == true then -- If the zombie is dead
+            table.remove(zombies, i) -- Remove it from the zombies table
         end
     end 
 
-    for i=#bullets, 1, -1 do
-        local b = bullets[i]
-        if b.dead == true then
-            table.remove(bullets, i)
+    for i=#bullets, 1, -1 do -- Loops through all items in the bullets table in reverse order
+        local b = bullets[i] -- Creates a local variable to store the current bullet
+        if b.dead == true then -- If the bullet is dead
+            table.remove(bullets, i) -- Remove it from the bullets table
         end
     end
 end
@@ -136,12 +140,6 @@ function spawnBullet() -- Function to create bullets
     bullet.direction = faceMouse() -- Travels towards the direction of the mouse
     bullet.dead = false
     table.insert(bullets, bullet) -- Inserts this local bullet table into the main bullets table
-end
-
-function love.keypressed(key)
-    if key == "space" then
-        spawnZombie()
-    end
 end
 
 function love.mousepressed(x, y, button) -- Function to spawn in bullets
