@@ -1,4 +1,6 @@
 function love.load() -- Function to execute before the game loads
+    math.randomseed(os.time())
+
     sprites = {} -- Table to store sprites
     sprites.player = love.graphics.newImage('sprites/player.png') -- Player image
     sprites.bullet = love.graphics.newImage('sprites/bullet.png') -- Bullet image
@@ -14,23 +16,28 @@ function love.load() -- Function to execute before the game loads
 
     bullets = {} -- Table to store tables of bullet data
 
-    gameState = 2
+    myFont = love.graphics.newFont(30)
+
+    gameState = 1
     maxTime = 2
     timer = maxTime
+    score = 0
 end
 
 function love.update(dt) -- Function to update the game loop
-    if love.keyboard.isDown("d") then -- If the d key is pressed
-        player.x = player.x + player.speed * dt -- Goes right at a constant speed per second
-    end
-    if love.keyboard.isDown("s") then -- If the s key is pressed
-        player.y = player.y + player.speed * dt -- Goes down at a constant speed per second
-    end
-    if love.keyboard.isDown("a") then -- If the a key is pressed
-        player.x = player.x - player.speed * dt -- Goes left at a constant speed per second
-    end
-    if love.keyboard.isDown("w") then -- If the w key is pressed
-        player.y = player.y - player.speed * dt -- Goes up at a constant speed per second
+    if gameState == 2 then
+        if love.keyboard.isDown("d") and player.x < love.graphics.getWidth() then -- If the d key is pressed
+            player.x = player.x + player.speed * dt -- Goes right at a constant speed per second
+        end
+        if love.keyboard.isDown("s") and player.y < love.graphics.getHeight() then -- If the s key is pressed
+            player.y = player.y + player.speed * dt -- Goes down at a constant speed per second
+        end
+        if love.keyboard.isDown("a") and player.x > 0 then -- If the a key is pressed
+            player.x = player.x - player.speed * dt -- Goes left at a constant speed per second
+        end
+        if love.keyboard.isDown("w") and player.y > 0 then -- If the w key is pressed
+            player.y = player.y - player.speed * dt -- Goes up at a constant speed per second
+        end
     end
 
     for i,z in ipairs(zombies) do -- Loop through each item in the zombies table
@@ -40,6 +47,9 @@ function love.update(dt) -- Function to update the game loop
         if distanceBetween(z.x, z.y, player.x, player.y) < 30 then -- If the zombie touches the player
             for i,z in ipairs(zombies) do -- Loop through each item in the zombies table again
                 zombies[i] = nil -- Delete each zombie
+                gameState = 1
+                player.x = love.graphics.getWidth() / 2
+                player.y = love.graphics.getHeight() / 2
             end
         end
     end
@@ -61,6 +71,7 @@ function love.update(dt) -- Function to update the game loop
             if distanceBetween(z.x, z.y, b.x, b.y) < 20 then -- If the distance is close enough (aka if they collide)
                 z.dead = true -- Make the zombie die
                 b.dead = true -- Make the bullet die
+                score = score + 1
             end
         end
     end
@@ -78,10 +89,26 @@ function love.update(dt) -- Function to update the game loop
             table.remove(bullets, i) -- Remove it from the bullets table
         end
     end
+
+    if gameState == 2 then
+        timer = timer - dt
+        if timer <= 0 then
+            spawnZombie()
+            maxTime = 0.95 * maxTime
+            timer = maxTime
+        end
+    end
 end
 
 function love.draw() -- Function to render graphics to the screen
     love.graphics.draw(sprites.background, 0, 0) -- Puts in the background
+
+    if gameState == 1 then
+        love.graphics.setFont(myFont)
+        love.graphics.printf("Click Anywhere to Begin!", 0, 50, love.graphics.getWidth(), "center")
+    end
+
+    love.graphics.printf("Score: " .. score, 0, love.graphics.getHeight() - 100, love.graphics.getWidth(), "center")
 
     love.graphics.draw(sprites.player, player.x, player.y, faceMouse(), nil, nil, sprites.player:getWidth() / 2, sprites.player:getHeight() / 2) -- Draws the player at the player's position
 
@@ -143,7 +170,12 @@ function spawnBullet() -- Function to create bullets
 end
 
 function love.mousepressed(x, y, button) -- Function to spawn in bullets
-    if button == 1 then -- If primary button is clicked
+    if button == 1 and gameState == 2 then -- If primary button is clicked
         spawnBullet() -- Spawn a bullet
+    elseif button == 1 and gameState == 1 then
+        gameState = 2
+        maxTime = 2
+        timer = maxTime
+        score = 0
     end
 end
