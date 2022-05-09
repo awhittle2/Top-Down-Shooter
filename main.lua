@@ -1,5 +1,5 @@
 function love.load() -- Function to execute before the game loads
-    math.randomseed(os.time())
+    math.randomseed(os.time()) -- Sets the random seed to be based on the time, so it will always be truly random
 
     sprites = {} -- Table to store sprites
     sprites.player = love.graphics.newImage('sprites/player.png') -- Player image
@@ -16,12 +16,12 @@ function love.load() -- Function to execute before the game loads
 
     bullets = {} -- Table to store tables of bullet data
 
-    myFont = love.graphics.newFont(30)
+    myFont = love.graphics.newFont(30) -- Creates a new font of size 30
 
-    gameState = 1
-    maxTime = 2
-    timer = maxTime
-    score = 0
+    gameState = 1 -- Tracks the game state
+    maxTime = 2 -- Tracks the max time for the timer
+    timer = maxTime -- Tracks how long till the next zombie spawns
+    score = 0 -- Tracks the player score
 end
 
 function love.update(dt) -- Function to update the game loop
@@ -47,16 +47,16 @@ function love.update(dt) -- Function to update the game loop
         if distanceBetween(z.x, z.y, player.x, player.y) < 30 then -- If the zombie touches the player
             for i,z in ipairs(zombies) do -- Loop through each item in the zombies table again
                 zombies[i] = nil -- Delete each zombie
-                gameState = 1
-                player.x = love.graphics.getWidth() / 2
-                player.y = love.graphics.getHeight() / 2
+                gameState = 1 -- Sets the game back to the main menu
+                player.x = love.graphics.getWidth() / 2 -- Resets the x coord of the player to the center
+                player.y = love.graphics.getHeight() / 2 -- Resets the y coord of the player to the center
             end
         end
     end
 
-    for i,b in ipairs(bullets) do -- Loops through each
-        b.x = b.x + (math.cos(b.direction) * b.speed * dt)
-        b.y = b.y + (math.sin(b.direction) * b.speed * dt)
+    for i,b in ipairs(bullets) do -- Loops through each item in the bullets table
+        b.x = b.x + (math.cos(b.direction) * b.speed * dt) -- Updates its x to the cos of the direction its traveling at a constant speed per second
+        b.y = b.y + (math.sin(b.direction) * b.speed * dt) -- Updates its y to the sin of the direction its traveling at a constant speed per second
     end
 
     for i=#bullets, 1, -1 do -- Loops through each item in the bullets table but does it from the reverse direction
@@ -71,7 +71,7 @@ function love.update(dt) -- Function to update the game loop
             if distanceBetween(z.x, z.y, b.x, b.y) < 20 then -- If the distance is close enough (aka if they collide)
                 z.dead = true -- Make the zombie die
                 b.dead = true -- Make the bullet die
-                score = score + 1
+                score = score + 1 -- Adds 1 to the score
             end
         end
     end
@@ -90,12 +90,12 @@ function love.update(dt) -- Function to update the game loop
         end
     end
 
-    if gameState == 2 then
-        timer = timer - dt
-        if timer <= 0 then
-            spawnZombie()
-            maxTime = 0.95 * maxTime
-            timer = maxTime
+    if gameState == 2 then -- If the player is in the game
+        timer = timer - dt -- Make the timer count down
+        if timer <= 0 then -- If the timer reaches 0
+            spawnZombie() -- Spawn a zombie
+            maxTime = 0.95 * maxTime -- Decrease the max time by 5%
+            timer = maxTime -- Reset the timer
         end
     end
 end
@@ -103,21 +103,21 @@ end
 function love.draw() -- Function to render graphics to the screen
     love.graphics.draw(sprites.background, 0, 0) -- Puts in the background
 
-    if gameState == 1 then
-        love.graphics.setFont(myFont)
-        love.graphics.printf("Click Anywhere to Begin!", 0, 50, love.graphics.getWidth(), "center")
+    if gameState == 1 then -- If the player is in the main menu
+        love.graphics.setFont(myFont) -- Set teh font
+        love.graphics.printf("Click Anywhere to Begin!", 0, 50, love.graphics.getWidth(), "center") -- Print text telling the user what to do
     end
 
-    love.graphics.printf("Score: " .. score, 0, love.graphics.getHeight() - 100, love.graphics.getWidth(), "center")
+    love.graphics.printf("Score: " .. score, 0, love.graphics.getHeight() - 100, love.graphics.getWidth(), "center") -- Print the score to the bottom center of the screen
 
-    love.graphics.draw(sprites.player, player.x, player.y, faceMouse(), nil, nil, sprites.player:getWidth() / 2, sprites.player:getHeight() / 2) -- Draws the player at the player's position
+    love.graphics.draw(sprites.player, player.x, player.y, faceMouse(), nil, nil, sprites.player:getWidth() / 2, sprites.player:getHeight() / 2) -- Draws the player at their x and y coordinates, make it face the mouse, and center the sprite
 
     for i,z in ipairs(zombies) do -- Loops through all zombies in the zombies table
-        love.graphics.draw(sprites.zombie, z.x, z.y, facePlayer(z), nil, nil, sprites.zombie:getWidth() / 2, sprites.zombie:getHeight() / 2)
+        love.graphics.draw(sprites.zombie, z.x, z.y, facePlayer(z), nil, nil, sprites.zombie:getWidth() / 2, sprites.zombie:getHeight() / 2) -- Draws the zombie at its x and y coordinates, make it face the player, and center the sprite
     end
 
     for i,b in ipairs(bullets) do -- Loops through all bullets in the bullets table
-        love.graphics.draw(sprites.bullet, b.x, b.y, nil, 0.5, 0.5, sprites.bullet:getWidth() / 2, sprites.bullet:getHeight() / 2)
+        love.graphics.draw(sprites.bullet, b.x, b.y, nil, 0.5, 0.5, sprites.bullet:getWidth() / 2, sprites.bullet:getHeight() / 2) -- Draws the bullet at its x and y coordinates, scales the sprite down, and centers it
     end
 end
 
@@ -139,21 +139,21 @@ function spawnZombie() -- Function to create zombies
     zombie.x = 0 -- Sets the zombie x coord
     zombie.y = 0 -- Sets the zombie y coord
     zombie.speed = 140 -- Sets the zombie speed
-    zombie.dead = false
+    zombie.dead = false -- Sets the zombie to be alive
 
-    local side = math.random(1, 4)
-    if side == 1 then
-        zombie.x = -30
-        zombie.y = math.random(0, love.graphics.getHeight())
-    elseif side == 2 then
-        zombie.x = love.graphics.getWidth() + 30
-        zombie.y = math.random(0, love.graphics.getHeight())
-    elseif side == 3 then
-        zombie.x = math.random(0, love.graphics.getWidth())
-        zombie.y = -30
-    else
-        zombie.x = math.random(0, love.graphics.getWidth())
-        zombie.y = love.graphics.getHeight() + 30
+    local side = math.random(1, 4) -- Creates a variable, to store a random number 1-4 which represents each side of the viewport
+    if side == 1 then -- If its the left side
+        zombie.x = -30 -- Set the zombie's x barely outside of the viewport
+        zombie.y = math.random(0, love.graphics.getHeight()) -- Set its y coord to a random number
+    elseif side == 2 then -- If its the right side
+        zombie.x = love.graphics.getWidth() + 30 -- Set the zombie's x barely outside of the viewport
+        zombie.y = math.random(0, love.graphics.getHeight()) -- Set its y coord to a random number
+    elseif side == 3 then -- If its the top side
+        zombie.x = math.random(0, love.graphics.getWidth()) -- Set its x coord to a random number
+        zombie.y = -30 -- Set the zombie's y barely outside of the viewport
+    else -- If its the bottom side
+        zombie.x = math.random(0, love.graphics.getWidth()) -- Set its x coord to a random number
+        zombie.y = love.graphics.getHeight() + 30 -- Set the zombie's y barely outside of the viewport
     end
 
     table.insert(zombies, zombie) -- Inserts this local zombie into the main zombies table
@@ -165,17 +165,17 @@ function spawnBullet() -- Function to create bullets
     bullet.y = player.y -- Bullet spawns at player's y coord
     bullet.speed = 500 -- Sets how fast the bullet goes
     bullet.direction = faceMouse() -- Travels towards the direction of the mouse
-    bullet.dead = false
+    bullet.dead = false -- Sets the bullet to be alive
     table.insert(bullets, bullet) -- Inserts this local bullet table into the main bullets table
 end
 
 function love.mousepressed(x, y, button) -- Function to spawn in bullets
-    if button == 1 and gameState == 2 then -- If primary button is clicked
+    if button == 1 and gameState == 2 then -- If primary button is clicked and player is in the game
         spawnBullet() -- Spawn a bullet
-    elseif button == 1 and gameState == 1 then
-        gameState = 2
-        maxTime = 2
-        timer = maxTime
-        score = 0
+    elseif button == 1 and gameState == 1 then -- If primary button is clicked and player is in the main menu
+        gameState = 2 -- Set the player to the game
+        maxTime = 2 -- Reset the max time
+        timer = maxTime -- Reset the timer
+        score = 0 -- Reset the score
     end
 end
