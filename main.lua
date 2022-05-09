@@ -104,10 +104,27 @@ end
 
 function spawnZombie() -- Function to create zombies
     local zombie = {} -- Creates a local table to hold the zombie info
-    zombie.x = math.random(0, love.graphics.getWidth()) -- Sets the zombie x coord
-    zombie.y = math.random(0, love.graphics.getHeight()) -- Sets the zombie y coord
+
+    zombie.x = 0 -- Sets the zombie x coord
+    zombie.y = 0 -- Sets the zombie y coord
     zombie.speed = 140 -- Sets the zombie speed
     zombie.dead = false
+
+    local side = math.random(1, 4)
+    if side == 1 then
+        zombie.x = -30
+        zombie.y = math.random(0, love.graphics.getHeight())
+    elseif side == 2 then
+        zombie.x = love.graphics.getWidth() + 30
+        zombie.y = math.random(0, love.graphics.getHeight())
+    elseif side == 3 then
+        zombie.x = math.random(0, love.graphics.getWidth())
+        zombie.y = -30
+    else
+        zombie.x = math.random(0, love.graphics.getWidth())
+        zombie.y = love.graphics.getHeight() + 30
+    end
+
     table.insert(zombies, zombie) -- Inserts this local zombie into the main zombies table
 end
 
